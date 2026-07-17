@@ -56,6 +56,26 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return unload_ok
 
 
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Migrate an old config entry to the current version.
+
+    No migration is needed yet — BinMasterConfigFlow.VERSION is still 1 and
+    every released version so far has used the same ConfigSubentry.data
+    shape. This is scaffolding: the moment a future release needs to change
+    that shape, it has somewhere to put the migration instead of that
+    change having to be retrofitted under pressure once real users already
+    have the old shape stored (see docs/adr for the version this lands in).
+    """
+    if entry.version == 1:
+        return True
+    _LOGGER.error(
+        "Cannot migrate BinMaster config entry from version %s.%s — no migration path defined",
+        entry.version,
+        entry.minor_version,
+    )
+    return False
+
+
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle a change to the entry or one of its bin-type subentries.
 
