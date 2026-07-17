@@ -34,6 +34,26 @@ def _babel_locale(language: str) -> str:
     return language.replace("-", "_")
 
 
+def warm_locale(language: str) -> None:
+    """Force Babel to load and cache this locale's data.
+
+    Babel lazily reads its CLDR .dat files from disk on first use per
+    locale (cached in-process after that). Call this once, via an
+    executor job, during coordinator.async_setup() — otherwise the first
+    call happens wherever format_short_date/format_relative/
+    describe_recurrence first get called from, which is synchronous
+    entity __init__/property code running directly in the event loop,
+    and HA flags that as a blocking-call violation.
+    """
+    locale = _babel_locale(language)
+    try:
+        get_day_names("abbreviated", locale=locale)
+        format_date(date.today(), format="EEE dd/MM", locale=locale)
+        format_timedelta(timedelta(days=1), granularity="day", add_direction=True, locale=locale)
+    except (ValueError, UnknownLocaleError):
+        pass
+
+
 def format_short_date(value: date, language: str) -> str:
     """Return a locale-aware short date, e.g. 'mer. 17/07' / 'Wed 17/07'."""
     try:

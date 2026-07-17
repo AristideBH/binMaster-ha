@@ -4,6 +4,14 @@ All notable changes to BinMaster are documented here. Format loosely follows [Ke
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-07-17
+
+### Fixed
+- `RuntimeError: calls hass.async_create_task from a thread other than the event loop`, crashing `_async_register_frontend` on startup — `__init__.py`'s `EVENT_HOMEASSISTANT_STARTED` listener wrapped `hass.async_create_task` in a plain lambda, which isn't guaranteed to run on the event-loop thread. Fixed by passing an async function directly to `async_listen_once`, letting HA's event bus handle thread-safe scheduling itself.
+- Blocking-call warning (`Detected blocking call to open ... babel/...`) — Babel lazily reads its CLDR data files from disk on first use per locale, and that first read was happening synchronously inside entity `__init__` (via `describe_recurrence`), directly in the event loop. Added `localization.warm_locale()`, called once via an executor job in `coordinator.async_setup()` before any entity is created, so Babel's cache is already warm by the time anything calls it synchronously.
+
+Found via real HA core logs from a live instance — both were genuine bugs undetected by hassfest/HACS validation or the standalone logic tests used during development.
+
 ## [0.1.5] - 2026-07-17
 
 ### Fixed

@@ -40,7 +40,7 @@ from .const import (
     SUBENTRY_TYPE_BIN,
 )
 from .localization import describe_recurrence as _describe_recurrence
-from .localization import format_short_date
+from .localization import format_short_date, warm_locale
 from .recurrence import compile_recurrence, next_occurrence
 
 _LOGGER = logging.getLogger(__name__)
@@ -143,6 +143,10 @@ class BinMasterCoordinator(DataUpdateCoordinator[dict[str, BinState]]):
         """Initial load + register the midnight tick and per-bin notify trackers."""
         self._persisted_checkin = await self._store.async_load() or {}
         await self._async_load_labels()
+        # Warm Babel's locale cache off the event loop, before any entity
+        # (whose __init__/extra_state_attributes call format_short_date/
+        # format_relative/describe_recurrence synchronously) gets created.
+        await self.hass.async_add_executor_job(warm_locale, self.hass.config.language)
         await self.async_config_entry_first_refresh()
         self._midnight_unsub = async_track_time_change(
             self.hass, self._handle_midnight, hour=0, minute=0, second=1

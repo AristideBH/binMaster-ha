@@ -38,11 +38,17 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     if hass.state is CoreState.running:
         await _async_register_frontend(hass)
     else:
-        hass.bus.async_listen_once(
-            EVENT_HOMEASSISTANT_STARTED, lambda _event: hass.async_create_task(
-                _async_register_frontend(hass)
-            )
-        )
+
+        async def _handle_started(_event: Any) -> None:
+            await _async_register_frontend(hass)
+
+        # Pass an async function directly rather than a lambda wrapping
+        # hass.async_create_task — the event bus isn't guaranteed to invoke
+        # this listener from the event-loop thread, and async_create_task
+        # called off-thread crashes ("calls hass.async_create_task from a
+        # thread other than the event loop"). HA's dispatch already handles
+        # scheduling an async listener safely regardless of calling thread.
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _handle_started)
     return True
 
 
