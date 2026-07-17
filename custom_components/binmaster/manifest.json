@@ -3,6 +3,8 @@
   "name": "BinMaster",
   "codeowners": ["@AristideBH"],
   "config_flow": true,
+  "dependencies": ["http"],
+  "after_dependencies": ["lovelace"],
   "documentation": "https://github.com/AristideBH/binmaster-ha",
   "issue_tracker": "https://github.com/AristideBH/binmaster-ha/issues",
   "iot_class": "calculated",

@@ -96,7 +96,8 @@ def compile_recurrence(config: Mapping[str, Any]) -> rrule.rrule:
         if not weekdays:
             raise RecurrenceError("Monthly pattern requires a weekday")
         wd_const = _WEEKDAY_CONST[weekdays[0]]
-        nth = int(config[CONF_NTH])
+        raw_nth = config[CONF_NTH]
+        nth = -1 if raw_nth == "last" else int(raw_nth)
         return rrule.rrule(rrule.MONTHLY, dtstart=dtstart, byweekday=wd_const(nth))
     if pattern == PATTERN_CUSTOM:
         return rrule.rrule(

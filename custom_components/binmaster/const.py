@@ -18,7 +18,7 @@ CONF_PATTERN = "pattern"  # "weekly" | "biweekly" | "monthly" | "custom"
 CONF_WEEKDAYS = "weekdays"  # list["mon".."sun"]
 CONF_ANCHOR_DATE = "anchor_date"  # "YYYY-MM-DD"
 CONF_INTERVAL = "interval"  # custom pattern only, weeks
-CONF_NTH = "nth"  # monthly only: "1".."4" | "-1" (last)
+CONF_NTH = "nth"  # monthly only: "1".."4" | "last"
 CONF_RAW_RRULE = "raw_rrule"  # custom pattern, optional advanced override
 
 PATTERN_WEEKLY = "weekly"
@@ -45,7 +45,7 @@ EVENT_BINMASTER_NOTIFY = "binmaster_notify"
 
 # dateutil.rrule byweekday order: Monday=0 .. Sunday=6
 WEEKDAY_OPTIONS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
-NTH_OPTIONS = ["1", "2", "3", "4", "-1"]
+NTH_OPTIONS = ["1", "2", "3", "4", "last"]
 
 FRONTEND_URL_BASE = "/binmaster_static"
 FRONTEND_JS_FILENAME = "binmaster-card.js"
