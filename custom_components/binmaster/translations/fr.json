@@ -1,0 +1,126 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurer BinMaster",
+        "description": "BinMaster gère les calendriers de collecte des déchets. Ajoutez des types de bacs (ordures ménagères, recyclage, végétaux...) après la configuration."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "BinMaster est déjà configuré."
+    }
+  },
+  "config_subentries": {
+    "bin_type": {
+      "initiate_flow": {
+        "user": "Ajouter un type de bac",
+        "reconfigure": "Modifier le type de bac"
+      },
+      "entry_type": "Type de bac",
+      "step": {
+        "user": {
+          "title": "Détails du bac",
+          "data": {
+            "name": "Nom",
+            "icon": "Icône",
+            "color": "Couleur",
+            "collection_time": "Heure de collecte"
+          }
+        },
+        "recurrence": {
+          "title": "Récurrence",
+          "data": {
+            "pattern": "Modèle"
+          }
+        },
+        "weekly": {
+          "title": "Récurrence hebdomadaire",
+          "data": {
+            "weekdays": "Jour(s) de collecte",
+            "anchor_date": "Date de début"
+          }
+        },
+        "biweekly": {
+          "title": "Toutes les 2 semaines",
+          "data": {
+            "weekdays": "Jour(s) de collecte",
+            "anchor_date": "Date de début (définit la semaine 'active')"
+          }
+        },
+        "monthly": {
+          "title": "Récurrence mensuelle",
+          "data": {
+            "weekdays": "Jour de la semaine",
+            "nth": "Quelle occurrence",
+            "anchor_date": "Date de début"
+          }
+        },
+        "custom": {
+          "title": "Récurrence personnalisée",
+          "data": {
+            "weekdays": "Jour(s) de collecte",
+            "interval": "Toutes les N semaines",
+            "anchor_date": "Date de début",
+            "raw_rrule": "Avancé : RRULE brute (remplace les champs ci-dessus)"
+          }
+        },
+        "notify": {
+          "title": "Notifications",
+          "data": {
+            "notify_enabled": "Notifier la veille au soir",
+            "notify_time": "Heure de notification"
+          }
+        }
+      },
+      "error": {
+        "invalid_recurrence": "Impossible de générer une règle de récurrence valide avec ces paramètres."
+      },
+      "abort": {
+        "reconfigure_successful": "Type de bac mis à jour."
+      }
+    }
+  },
+  "selector": {
+    "weekday": {
+      "options": {
+        "mon": "Lundi",
+        "tue": "Mardi",
+        "wed": "Mercredi",
+        "thu": "Jeudi",
+        "fri": "Vendredi",
+        "sat": "Samedi",
+        "sun": "Dimanche"
+      }
+    },
+    "pattern": {
+      "options": {
+        "weekly": "Hebdomadaire",
+        "biweekly": "Toutes les 2 semaines",
+        "monthly": "N-ième jour du mois",
+        "custom": "Personnalisé"
+      }
+    },
+    "nth": {
+      "options": {
+        "1": "Premier",
+        "2": "Deuxième",
+        "3": "Troisième",
+        "4": "Quatrième",
+        "-1": "Dernier"
+      }
+    }
+  },
+  "services": {
+    "check_in": {
+      "name": "Pointer la collecte",
+      "description": "Marque un bac comme collecté et incrémente son compteur de collectes."
+    }
+  },
+  "entity": {
+    "switch": {
+      "checked_in": {
+        "name": "Coché"
+      }
+    }
+  }
+}

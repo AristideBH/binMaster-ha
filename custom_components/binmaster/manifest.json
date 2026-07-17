@@ -1,0 +1,13 @@
+{
+  "domain": "binmaster",
+  "name": "BinMaster",
+  "codeowners": ["@AristideBH"],
+  "config_flow": true,
+  "documentation": "https://github.com/AristideBH/binmaster-ha",
+  "issue_tracker": "https://github.com/AristideBH/binmaster-ha/issues",
+  "iot_class": "calculated",
+  "integration_type": "hub",
+  "single_config_entry": true,
+  "requirements": ["Babel>=2.14.0"],
+  "version": "0.1.0"
+}

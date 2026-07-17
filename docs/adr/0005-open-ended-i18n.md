@@ -1,0 +1,11 @@
+# Open-ended language support: custom-card-helpers on the frontend, Babel on the backend
+
+Before this, both the card's relative-time labels and the backend's `formatted_date`/`relative`/device-`model` text were hand-rolled maps hardcoded to English and French — adding a language meant hand-editing Python and JS dicts, forever, with no way to verify completeness. Decided against that as the project moves toward public HACS custom-repo distribution and real external users.
+
+Split the fix by where each piece actually runs:
+
+- **Card** (`frontend/src/binmaster-card.js`): replaced the hand-rolled `RELATIVE_LABELS` map with `custom-card-helpers`'s `relativeTime()`, which wraps `Intl.RelativeTimeFormat` — full ICU/CLDR data, every language HA's frontend ships, zero maintenance. New npm dependency.
+- **Backend** (`localization.py`): replaced the hand-rolled weekday-abbreviation and date-format maps with `Babel` (CLDR data, not Python's `locale.setlocale` — same reliability rationale the project already had, just backed by a maintained dataset instead of our own map). First non-bundled pip dependency (`manifest.json` `requirements`), downloaded automatically by HA on integration setup like any HACS integration's requirements.
+- **Pattern/nth labels** (used only for the device `model` field, e.g. "Weekly: Tue, Fri"): rather than a third hardcoded map, the coordinator now preloads these from `strings.json`/`translations/*.json` via `homeassistant.helpers.translation.async_get_translations()` at `async_setup()` — the exact same source the config flow's own `selector.pattern.options` already uses. One source of truth: a community translation PR to `translations/xx.json` now covers the config flow AND the device label with no Python changes.
+
+One accepted gap: Babel's `format_timedelta` has no equivalent of `Intl.RelativeTimeFormat`'s "today"/"tomorrow" idioms (it says "in 0 days" literally) and collapses to week-granularity past ~day 7 with no clean way to suppress it. Kept a tiny hand-rolled `{0, 1, 2}` override in `localization.py` for the idiomatic cases (today/tomorrow/day-after-tomorrow) on top of Babel for everything else — the week-collapse on long monthly waits is accepted as a minor cosmetic quirk, since the numeric sensor state stays exact regardless of how the supplementary text phrases it.

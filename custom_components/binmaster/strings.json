@@ -1,0 +1,126 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up BinMaster",
+        "description": "BinMaster manages household waste-collection schedules. Add bin types (e.g. general waste, recycling, green waste) after setup."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "BinMaster is already configured."
+    }
+  },
+  "config_subentries": {
+    "bin_type": {
+      "initiate_flow": {
+        "user": "Add bin type",
+        "reconfigure": "Edit bin type"
+      },
+      "entry_type": "Bin type",
+      "step": {
+        "user": {
+          "title": "Bin details",
+          "data": {
+            "name": "Name",
+            "icon": "Icon",
+            "color": "Color",
+            "collection_time": "Collection time"
+          }
+        },
+        "recurrence": {
+          "title": "Recurrence",
+          "data": {
+            "pattern": "Pattern"
+          }
+        },
+        "weekly": {
+          "title": "Weekly recurrence",
+          "data": {
+            "weekdays": "Collection day(s)",
+            "anchor_date": "Start date"
+          }
+        },
+        "biweekly": {
+          "title": "Every 2 weeks",
+          "data": {
+            "weekdays": "Collection day(s)",
+            "anchor_date": "Start date (defines which week is 'on')"
+          }
+        },
+        "monthly": {
+          "title": "Monthly recurrence",
+          "data": {
+            "weekdays": "Day of week",
+            "nth": "Which occurrence",
+            "anchor_date": "Start date"
+          }
+        },
+        "custom": {
+          "title": "Custom recurrence",
+          "data": {
+            "weekdays": "Collection day(s)",
+            "interval": "Every N weeks",
+            "anchor_date": "Start date",
+            "raw_rrule": "Advanced: raw RRULE (overrides the fields above)"
+          }
+        },
+        "notify": {
+          "title": "Notifications",
+          "data": {
+            "notify_enabled": "Notify the evening before",
+            "notify_time": "Notification time"
+          }
+        }
+      },
+      "error": {
+        "invalid_recurrence": "Could not build a valid recurrence rule from these settings."
+      },
+      "abort": {
+        "reconfigure_successful": "Bin type updated."
+      }
+    }
+  },
+  "selector": {
+    "weekday": {
+      "options": {
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday",
+        "sun": "Sunday"
+      }
+    },
+    "pattern": {
+      "options": {
+        "weekly": "Weekly",
+        "biweekly": "Every 2 weeks",
+        "monthly": "Nth weekday of month",
+        "custom": "Custom"
+      }
+    },
+    "nth": {
+      "options": {
+        "1": "First",
+        "2": "Second",
+        "3": "Third",
+        "4": "Fourth",
+        "-1": "Last"
+      }
+    }
+  },
+  "services": {
+    "check_in": {
+      "name": "Check in",
+      "description": "Marks a bin as collected and increments its lifetime collection counter."
+    }
+  },
+  "entity": {
+    "switch": {
+      "checked_in": {
+        "name": "Checked in"
+      }
+    }
+  }
+}

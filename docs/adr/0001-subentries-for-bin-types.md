@@ -1,0 +1,5 @@
+# Manage bin types as config subentries, not separate entries or an options-list
+
+BinMaster needs one integration instance managing an arbitrary number of user-added bin types, each with its own device and entity pair. We chose Home Assistant's config-entry **subentries** API (one `ConfigEntry` "BinMaster", each bin type a `ConfigSubentry` of type `bin_type`, each linked to its own device) over either a hand-rolled `OptionsFlow`-managed JSON list, or requiring the user to re-run "Add Integration" once per bin type.
+
+Subentries is the native, idiomatic 2024+ HA pattern for exactly this shape ("one integration, N managed sub-items, each with its own device/entities"), and gives add/edit/delete UI, entity/device linking (`config_subentry_id`), and update-listener notifications for free. The trade-off: it requires a comparatively recent HA core version (`hacs.json` floor set to `2024.12.0`) and a less-travelled API surface than a hand-rolled options flow — verified against HA core source (`homeassistant/config_entries.py`, `homeassistant/helpers/entity_platform.py`) during implementation rather than trained-knowledge guesswork, since no local reference existed.

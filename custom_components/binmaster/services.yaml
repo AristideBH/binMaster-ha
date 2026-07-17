@@ -1,0 +1,5 @@
+check_in:
+  target:
+    entity:
+      domain: sensor
+      integration: binmaster

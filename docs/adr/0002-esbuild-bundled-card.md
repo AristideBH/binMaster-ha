@@ -1,0 +1,5 @@
+# Bundle the Lovelace card with esbuild instead of shipping raw unbundled JS
+
+The `binmaster-card` frontend could have been hand-written as a single unbundled JS file that grabs `LitElement`/`html`/`css` by reaching into an existing HA frontend element's prototype — a common trick in older custom cards that avoids any build tooling. Instead, `frontend/src/binmaster-card.js` is written against a real `lit` npm dependency and bundled via esbuild (`frontend/build.mjs`) into the committed dist file `custom_components/binmaster/frontend/binmaster-card.js`, which is what HACS/HA actually serves.
+
+This is the standard approach for actively maintained HACS cards and avoids depending on undocumented internals of the HA frontend that can break across HA releases. The cost is a small added toolchain (`frontend/package.json`, a Node build step) and the discipline of always rebuilding the dist file after editing the source — contributors must run `npm run build`, since HACS installs do not run one themselves.
