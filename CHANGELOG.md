@@ -4,6 +4,14 @@ All notable changes to BinMaster are documented here. Format loosely follows [Ke
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-07-17
+
+### Added
+- `.github/workflows/release.yml`: automatically tags and creates a GitHub Release once `Validate` passes on `main`, if `manifest.json`'s version doesn't already have a matching tag — release notes pulled from the matching `CHANGELOG.md` section. No more manual `git tag`/`gh release create` per version.
+
+### Changed
+- `actions/checkout` and `actions/setup-node` bumped `v4` → `v7` in `validate.yml` to clear the "Node.js 20 is deprecated" warnings (both now target Node 24 natively).
+
 ## [0.1.3] - 2026-07-17
 
 ### Changed
