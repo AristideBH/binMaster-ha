@@ -3,7 +3,7 @@ import esbuild from "esbuild";
 const watch = process.argv.includes("--watch");
 
 const options = {
-  entryPoints: ["src/binmaster-card.js"],
+  entryPoints: ["src/main.js"],
   bundle: true,
   minify: true,
   format: "esm",

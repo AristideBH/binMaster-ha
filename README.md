@@ -11,16 +11,31 @@ A native Home Assistant integration for household waste-collection schedules —
 
 Each bin type creates a `calendar.binmaster_*` entity (works with any standard HA calendar card/automation) and a `sensor.binmaster_*` entity (`state` = days until next collection; attributes: `color`, `icon`, `formatted_date`, `checked_in`, `total_collections`).
 
-The `binmaster-card` Lovelace card is registered automatically — no manual resource step needed (unless your dashboard is in YAML mode, in which case add it manually; check the HA log for the exact resource URL).
+The `binmaster-card` and `binmaster-overview-card` Lovelace cards are registered automatically — no manual resource step needed (unless your dashboard is in YAML mode, in which case add it manually; check the HA log for the exact resource URL). Both have a visual editor (click **Edit** on the card in the dashboard UI) — YAML below is for reference/YAML-mode dashboards.
 
 ```yaml
 type: custom:binmaster-card
 entity: sensor.binmaster_ordures_menageres
 ```
 
+Point it at the `sensor.binmaster_*` entity; the card finds the matching `switch.binmaster_*_checked_in` on the same device automatically for the check-in button — clicking it toggles the switch (so you can un-check a mistaken check-in too, not just check in).
+
+### binmaster-overview-card
+
+Shows every bin type at once — auto-discovers all `sensor.binmaster_*` entities, sorted soonest-first with already-checked-in bins sunk to the bottom, so it always surfaces what still needs attention. No entity list to maintain; add a bin type in the integration and it just appears.
+
+```yaml
+type: custom:binmaster-overview-card
+title: Waste collection # optional
+layout: grid # "list" (default) or "grid"
+columns: 2 # grid mode only
+exclude: # optional, hide specific bins from this card
+  - sensor.binmaster_vegetaux
+```
+
 ### Alternative: mushroom-template-card
 
-If you have [Mushroom](https://github.com/piitaya/lovelace-mushroom) installed, its template card can reproduce (and extend) the same look using the `switch.binmaster_*_checked_in` entity — gives you a real toggle (`tap_action: toggle`) instead of the custom card's one-way check-in button, and every field is a plain template so it's fully yours to restyle:
+If you have [Mushroom](https://github.com/piitaya/lovelace-mushroom) installed, its template card can reproduce the same look with every field as a plain template, fully yours to restyle:
 
 ```yaml
 type: custom:mushroom-template-card

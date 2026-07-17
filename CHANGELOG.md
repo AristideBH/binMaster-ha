@@ -4,6 +4,17 @@ All notable changes to BinMaster are documented here. Format loosely follows [Ke
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-07-17
+
+### Added
+- Visual editor for `binmaster-card` (entity picker, restricted to `sensor.binmaster_*`) — no more hand-writing YAML for the one config key.
+- New `binmaster-overview-card`: auto-discovers all `sensor.binmaster_*` entities, sorted soonest-first with checked-in bins sunk to the bottom. `layout: list | grid` (with a `columns` option for grid), `exclude:` to hide specific bins, `title:` — with its own visual editor.
+- `frontend/src/binmaster-shared.js`: row rendering (icon/badge/text/check-in button) factored out of `binmaster-card.js` into a shared module both cards now use, so they can't visually drift apart.
+
+### Changed
+- `binmaster-card`'s check-in button now toggles the `switch.binmaster_*_checked_in` entity (found automatically via shared-device lookup) instead of one-way calling the `binmaster.check_in` service — you can un-check a mistaken check-in from the card now, not just check in. Matches the interaction model already documented for the mushroom-template-card recipe.
+- Both cards bundle into the same `binmaster-card.js` dist file as before (via a new `frontend/src/main.js` entry point) — no manifest/backend changes, no new Lovelace resource to register.
+
 ## [0.1.6] - 2026-07-17
 
 ### Fixed
