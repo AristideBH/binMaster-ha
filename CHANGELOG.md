@@ -4,6 +4,11 @@ All notable changes to BinMaster are documented here. Format loosely follows [Ke
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-07-17
+
+### Fixed
+- `async_remove_entry()` added to `__init__.py`: deletes the coordinator's own check-in `Store` (`.storage/binmaster_<entry_id>_checkin`) when the integration is removed. Previously this file was never cleaned up — HA's built-in entry-removal only handles entities/devices/config data, not storage private to the integration's own code.
+
 ## [0.1.1] - 2026-07-17
 
 ### Added

@@ -5,15 +5,24 @@ from __future__ import annotations
 import hashlib
 import logging
 from pathlib import Path
+from typing import Any
 
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.components.lovelace.const import LOVELACE_DATA
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import EVENT_HOMEASSISTANT_STARTED, CoreState, HomeAssistant
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.typing import ConfigType
 
-from .const import DOMAIN, FRONTEND_JS_FILENAME, FRONTEND_URL_BASE, PLATFORMS, SUBENTRY_TYPE_BIN
+from .const import (
+    DOMAIN,
+    FRONTEND_JS_FILENAME,
+    FRONTEND_URL_BASE,
+    PLATFORMS,
+    STORAGE_VERSION,
+    SUBENTRY_TYPE_BIN,
+)
 from .coordinator import BinMasterCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -54,6 +63,18 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator: BinMasterCoordinator = hass.data[DOMAIN].pop(entry.entry_id)
         coordinator.async_teardown()
     return unload_ok
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Clean up the coordinator's own storage when the entry is deleted (not just unloaded).
+
+    HA's built-in cleanup handles entities/devices/config data automatically,
+    but BinMasterCoordinator's check-in Store is ours alone — nothing else
+    knows to delete it, so without this it would linger in .storage/ forever
+    after someone removes the integration.
+    """
+    store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, f"{DOMAIN}_{entry.entry_id}_checkin")
+    await store.async_remove()
 
 
 async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
