@@ -4,6 +4,14 @@ All notable changes to BinMaster are documented here. Format loosely follows [Ke
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-07-17
+
+### Fixed
+- README's `mushroom-template-card` example: the `hold_action: more-info` suggestion for viewing a bin type's upcoming collections was wrong — traced it through the frontend source and confirmed calendar entities have no dedicated more-info view, it just shows a generic state display. Replaced with a `navigate` action to a dedicated per-bin-type calendar view, with setup instructions (HA's `/calendar` panel has no way to deep-link to one filtered entity, so a real view is the only route to a scoped week/month grid).
+
+### Verified, no code change
+- Confirmed `notify_enabled`/`notify_time` translations are correctly present in both `strings.json` and `translations/fr.json` for all four pattern steps. A report of them showing untranslated after updating to 0.1.3 is most likely a stale HA translation cache (reloading the config entry doesn't necessarily rebuild it) — a full HA restart should resolve it.
+
 ## [0.1.4] - 2026-07-17
 
 ### Added

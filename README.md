@@ -36,11 +36,21 @@ badge_color: green
 tap_action:
   action: toggle
 hold_action:
-  action: more-info
-  entity: calendar.binmaster_ordures_menageres
+  action: navigate
+  navigation_path: /lovelace-binmaster/ordures-menageres
 ```
 
-`hold_action` opens the bin type's `calendar.binmaster_*` more-info dialog — HA renders that as an upcoming-events list, so a long-press shows every future collection date for that bin type rather than just the next one.
+`hold_action` navigates to a dedicated dashboard view showing a week/month calendar grid scoped to just this bin type (see below) — a long-press shows every future collection date, not just the next one. (An earlier version of this doc suggested `action: more-info` on the calendar entity for this; that doesn't actually work — calendar entities have no dedicated more-info view in HA, it just falls back to a generic state display. A real per-bin-type calendar view is the only way to get this.)
+
+**Setting up the per-bin-type calendar view** (once per bin type): create a new dashboard view (Edit Dashboard → ⋮ → Add view, or a new tab), containing:
+
+```yaml
+type: calendar
+entities:
+  - calendar.binmaster_ordures_menageres
+```
+
+Then set `navigation_path` above to that view's path. Since HA's `/calendar` panel has no way to filter to one entity via a link, this per-bin-type view is the only route to a scoped week/month grid — a bit of manual setup per bin type, but it's stock Lovelace, nothing custom needed.
 
 ## Service
 
