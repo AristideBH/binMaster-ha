@@ -1,15 +1,15 @@
 {
   "domain": "binmaster",
   "name": "BinMaster",
+  "after_dependencies": ["lovelace"],
   "codeowners": ["@AristideBH"],
   "config_flow": true,
   "dependencies": ["http"],
-  "after_dependencies": ["lovelace"],
   "documentation": "https://github.com/AristideBH/binmaster-ha",
-  "issue_tracker": "https://github.com/AristideBH/binmaster-ha/issues",
-  "iot_class": "calculated",
   "integration_type": "hub",
-  "single_config_entry": true,
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/AristideBH/binmaster-ha/issues",
   "requirements": ["Babel>=2.14.0"],
+  "single_config_entry": true,
   "version": "0.1.0"
 }
