@@ -4,6 +4,17 @@ All notable changes to BinMaster are documented here. Format loosely follows [Ke
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-07-17
+
+### Changed
+- Config-flow bin-type wizard collapsed from 4 steps to 2: step 1 is now name/icon/color/collection-time/pattern-choice together, step 2 is the chosen pattern's fields + notify settings together. HA config flow can't reactively change a form's fields based on another field in that same form, so 2 is the practical minimum.
+- Color field reverted from `ColorRGBSelector` back to a plain hex/CSS-name text field — the native RGB selector renders as a bare `<input type="color">` (an ugly full-width solid-color block, not the "hex label + preview swatch" combo it might suggest); the text field is more compact and honestly closer to what was wanted.
+- README: added a "Setting up push notifications via automations" section with working examples, and a `mushroom-template-card` alternative to the custom card, including a `hold_action` that opens the bin type's calendar more-info dialog (a full upcoming-collections list) on long-press.
+
+### Investigated, not changed
+- Hiding the seconds field on the collection-time/notify-time pickers isn't possible — traced the `no_second` config option some frontend code references back to its source and confirmed it isn't actually exposed to `selector.TimeSelector()` for custom integrations; that's internal-only to HA's own settings pages.
+- HA's named-color-swatch list picker (used in e.g. the Labels editor) isn't available to custom integrations either — its selector type isn't registered in the Python `selector.py` module, only used internally.
+
 ## [0.1.2] - 2026-07-17
 
 ### Fixed

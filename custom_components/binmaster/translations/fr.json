@@ -23,28 +23,27 @@
           "data": {
             "name": "Nom",
             "icon": "Icône",
-            "color": "Couleur",
-            "collection_time": "Heure de collecte"
-          }
-        },
-        "recurrence": {
-          "title": "Récurrence",
-          "data": {
-            "pattern": "Modèle"
+            "color": "Couleur (hex ou nom CSS)",
+            "collection_time": "Heure de collecte",
+            "pattern": "Modèle de récurrence"
           }
         },
         "weekly": {
           "title": "Récurrence hebdomadaire",
           "data": {
             "weekdays": "Jour(s) de collecte",
-            "anchor_date": "Date de début"
+            "anchor_date": "Date de début",
+            "notify_enabled": "Notifier la veille au soir",
+            "notify_time": "Heure de notification"
           }
         },
         "biweekly": {
           "title": "Toutes les 2 semaines",
           "data": {
             "weekdays": "Jour(s) de collecte",
-            "anchor_date": "Date de début (définit la semaine 'active')"
+            "anchor_date": "Date de début (définit la semaine 'active')",
+            "notify_enabled": "Notifier la veille au soir",
+            "notify_time": "Heure de notification"
           }
         },
         "monthly": {
@@ -52,7 +51,9 @@
           "data": {
             "weekdays": "Jour de la semaine",
             "nth": "Quelle occurrence",
-            "anchor_date": "Date de début"
+            "anchor_date": "Date de début",
+            "notify_enabled": "Notifier la veille au soir",
+            "notify_time": "Heure de notification"
           }
         },
         "custom": {
@@ -61,12 +62,7 @@
             "weekdays": "Jour(s) de collecte",
             "interval": "Toutes les N semaines",
             "anchor_date": "Date de début",
-            "raw_rrule": "Avancé : RRULE brute (remplace les champs ci-dessus)"
-          }
-        },
-        "notify": {
-          "title": "Notifications",
-          "data": {
+            "raw_rrule": "Avancé : RRULE brute (remplace les champs ci-dessus)",
             "notify_enabled": "Notifier la veille au soir",
             "notify_time": "Heure de notification"
           }

@@ -66,50 +66,22 @@ def _today_iso() -> str:
     return dt_util.now().date().isoformat()
 
 
-def _hex_to_rgb(value: str) -> list[int]:
-    """Best-effort '#rrggbb' -> [r, g, b] for pre-filling ColorRGBSelector.
-
-    Falls back to DEFAULT_COLOR for anything not in that exact form (e.g. a
-    CSS color name from before this field used a picker) rather than crash.
-    """
-    candidate = value.lstrip("#") if isinstance(value, str) else ""
-    if len(candidate) == 6:
-        try:
-            return [int(candidate[i : i + 2], 16) for i in (0, 2, 4)]
-        except ValueError:
-            pass
-    return [int(DEFAULT_COLOR.lstrip("#")[i : i + 2], 16) for i in (0, 2, 4)]
-
-
-def _rgb_to_hex(rgb: list[int]) -> str:
-    """Convert [r, g, b] -> '#rrggbb'.
-
-    Keeps the stored/exposed color a plain hex string everywhere else
-    (attributes.py, the frontend cards, mushroom templates) — only the
-    config-flow widget itself deals in RGB triples.
-    """
-    r, g, b = rgb
-    return f"#{r:02x}{g:02x}{b:02x}"
-
-
+# Step 1 ("user"): identity + when-collected time + which recurrence pattern.
+# Step 2 (one of weekly/biweekly/monthly/custom): that pattern's fields + notify
+# settings, combined — two steps total instead of the four this used to be,
+# since HA config flow forms can't reactively change based on another field
+# in the same form (each step is one static render).
 STEP_BASIC_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_NAME): selector.TextSelector(),
         vol.Optional(CONF_ICON, default=DEFAULT_ICON): selector.IconSelector(),
-        vol.Optional(
-            CONF_COLOR, default=lambda: _hex_to_rgb(DEFAULT_COLOR)
-        ): selector.ColorRGBSelector(),
+        vol.Optional(CONF_COLOR, default=DEFAULT_COLOR): selector.TextSelector(),
         vol.Required(
             CONF_COLLECTION_TIME, default=DEFAULT_COLLECTION_TIME
         ): selector.TimeSelector(),
-    }
-)
-
-PATTERN_SCHEMA = vol.Schema(
-    {
         vol.Required(CONF_PATTERN, default=PATTERN_WEEKLY): selector.SelectSelector(
             selector.SelectSelectorConfig(options=PATTERNS, translation_key="pattern")
-        )
+        ),
     }
 )
 
@@ -119,10 +91,16 @@ _WEEKDAY_SELECTOR_MULTI = selector.SelectSelector(
     )
 )
 
+_NOTIFY_FIELDS = {
+    vol.Required(CONF_NOTIFY_ENABLED, default=False): selector.BooleanSelector(),
+    vol.Optional(CONF_NOTIFY_TIME, default=DEFAULT_NOTIFY_TIME): selector.TimeSelector(),
+}
+
 WEEKLY_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_WEEKDAYS): _WEEKDAY_SELECTOR_MULTI,
         vol.Required(CONF_ANCHOR_DATE, default=_today_iso): selector.DateSelector(),
+        **_NOTIFY_FIELDS,
     }
 )
 
@@ -135,6 +113,7 @@ MONTHLY_SCHEMA = vol.Schema(
             selector.SelectSelectorConfig(options=NTH_OPTIONS, translation_key="nth")
         ),
         vol.Required(CONF_ANCHOR_DATE, default=_today_iso): selector.DateSelector(),
+        **_NOTIFY_FIELDS,
     }
 )
 
@@ -146,13 +125,7 @@ CUSTOM_SCHEMA = vol.Schema(
         ),
         vol.Required(CONF_ANCHOR_DATE, default=_today_iso): selector.DateSelector(),
         vol.Optional(CONF_RAW_RRULE): selector.TextSelector(),
-    }
-)
-
-NOTIFY_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_NOTIFY_ENABLED, default=False): selector.BooleanSelector(),
-        vol.Optional(CONF_NOTIFY_TIME, default=DEFAULT_NOTIFY_TIME): selector.TimeSelector(),
+        **_NOTIFY_FIELDS,
     }
 )
 
@@ -202,22 +175,21 @@ class BinTypeSubentryFlow(ConfigSubentryFlow):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> SubentryFlowResult:
-        """Entry point for 'Add bin type' (also reused by reconfigure)."""
+        """Entry point for 'Add bin type' (also reused by reconfigure).
+
+        Identity + collection time + which recurrence pattern. Submitting
+        jumps straight to that pattern's own step (weekly/biweekly/monthly/
+        custom), which also carries the notify fields — two steps total.
+        """
         if user_input is not None:
-            user_input = dict(user_input)
-            if CONF_COLOR in user_input:
-                user_input[CONF_COLOR] = _rgb_to_hex(user_input[CONF_COLOR])
             self._data.update(user_input)
-            return await self.async_step_recurrence()
-        defaults = dict(
-            self._data
-            or {
-                CONF_ICON: DEFAULT_ICON,
-                CONF_COLOR: DEFAULT_COLOR,
-                CONF_COLLECTION_TIME: DEFAULT_COLLECTION_TIME,
-            }
-        )
-        defaults[CONF_COLOR] = _hex_to_rgb(defaults.get(CONF_COLOR, DEFAULT_COLOR))
+            return await getattr(self, f"async_step_{user_input[CONF_PATTERN]}")()
+        defaults = self._data or {
+            CONF_ICON: DEFAULT_ICON,
+            CONF_COLOR: DEFAULT_COLOR,
+            CONF_COLLECTION_TIME: DEFAULT_COLLECTION_TIME,
+            CONF_PATTERN: PATTERN_WEEKLY,
+        }
         return self.async_show_form(
             step_id="user",
             data_schema=self.add_suggested_values_to_schema(STEP_BASIC_SCHEMA, defaults),
@@ -231,26 +203,29 @@ class BinTypeSubentryFlow(ConfigSubentryFlow):
             self._data = dict(self._get_reconfigure_subentry().data)
         return await self.async_step_user(user_input)
 
-    async def async_step_recurrence(
-        self, user_input: dict[str, Any] | None = None
-    ) -> SubentryFlowResult:
-        """Pick which recurrence pattern to configure."""
-        if user_input is not None:
-            self._data[CONF_PATTERN] = user_input[CONF_PATTERN]
-            return await getattr(self, f"async_step_{user_input[CONF_PATTERN]}")()
-        defaults = {CONF_PATTERN: self._data.get(CONF_PATTERN, PATTERN_WEEKLY)}
-        return self.async_show_form(
-            step_id="recurrence",
-            data_schema=self.add_suggested_values_to_schema(PATTERN_SCHEMA, defaults),
-        )
-
     async def _async_step_pattern_fields(
         self, pattern: str, user_input: dict[str, Any] | None
     ) -> SubentryFlowResult:
+        """That pattern's fields + notify settings; validates and persists on submit."""
         schema = _PATTERN_SCHEMAS[pattern]
         if user_input is not None:
             self._data.update(user_input)
-            return await self.async_step_notify()
+            try:
+                compile_recurrence(self._data)
+            except RecurrenceError:
+                return self.async_show_form(
+                    step_id=pattern,
+                    data_schema=self.add_suggested_values_to_schema(schema, self._data),
+                    errors={"base": "invalid_recurrence"},
+                )
+            if self.source == SOURCE_RECONFIGURE:
+                return self.async_update_and_abort(
+                    self._get_entry(),
+                    self._get_reconfigure_subentry(),
+                    title=self._data[CONF_NAME],
+                    data=self._data,
+                )
+            return self.async_create_entry(title=self._data[CONF_NAME], data=self._data)
         return self.async_show_form(
             step_id=pattern,
             data_schema=self.add_suggested_values_to_schema(schema, self._data),
@@ -279,30 +254,3 @@ class BinTypeSubentryFlow(ConfigSubentryFlow):
     ) -> SubentryFlowResult:
         """Custom pattern fields: weekdays + interval + anchor date, optional raw RRULE."""
         return await self._async_step_pattern_fields(PATTERN_CUSTOM, user_input)
-
-    async def async_step_notify(
-        self, user_input: dict[str, Any] | None = None
-    ) -> SubentryFlowResult:
-        """Final step: notification settings, then validate and persist."""
-        if user_input is not None:
-            self._data.update(user_input)
-            try:
-                compile_recurrence(self._data)
-            except RecurrenceError:
-                return self.async_show_form(
-                    step_id="notify",
-                    data_schema=self.add_suggested_values_to_schema(NOTIFY_SCHEMA, self._data),
-                    errors={"base": "invalid_recurrence"},
-                )
-            if self.source == SOURCE_RECONFIGURE:
-                return self.async_update_and_abort(
-                    self._get_entry(),
-                    self._get_reconfigure_subentry(),
-                    title=self._data[CONF_NAME],
-                    data=self._data,
-                )
-            return self.async_create_entry(title=self._data[CONF_NAME], data=self._data)
-        return self.async_show_form(
-            step_id="notify",
-            data_schema=self.add_suggested_values_to_schema(NOTIFY_SCHEMA, self._data),
-        )

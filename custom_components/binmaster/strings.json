@@ -23,28 +23,27 @@
           "data": {
             "name": "Name",
             "icon": "Icon",
-            "color": "Color",
-            "collection_time": "Collection time"
-          }
-        },
-        "recurrence": {
-          "title": "Recurrence",
-          "data": {
-            "pattern": "Pattern"
+            "color": "Color (hex or CSS name)",
+            "collection_time": "Collection time",
+            "pattern": "Recurrence pattern"
           }
         },
         "weekly": {
           "title": "Weekly recurrence",
           "data": {
             "weekdays": "Collection day(s)",
-            "anchor_date": "Start date"
+            "anchor_date": "Start date",
+            "notify_enabled": "Notify the evening before",
+            "notify_time": "Notification time"
           }
         },
         "biweekly": {
           "title": "Every 2 weeks",
           "data": {
             "weekdays": "Collection day(s)",
-            "anchor_date": "Start date (defines which week is 'on')"
+            "anchor_date": "Start date (defines which week is 'on')",
+            "notify_enabled": "Notify the evening before",
+            "notify_time": "Notification time"
           }
         },
         "monthly": {
@@ -52,7 +51,9 @@
           "data": {
             "weekdays": "Day of week",
             "nth": "Which occurrence",
-            "anchor_date": "Start date"
+            "anchor_date": "Start date",
+            "notify_enabled": "Notify the evening before",
+            "notify_time": "Notification time"
           }
         },
         "custom": {
@@ -61,12 +62,7 @@
             "weekdays": "Collection day(s)",
             "interval": "Every N weeks",
             "anchor_date": "Start date",
-            "raw_rrule": "Advanced: raw RRULE (overrides the fields above)"
-          }
-        },
-        "notify": {
-          "title": "Notifications",
-          "data": {
+            "raw_rrule": "Advanced: raw RRULE (overrides the fields above)",
             "notify_enabled": "Notify the evening before",
             "notify_time": "Notification time"
           }
