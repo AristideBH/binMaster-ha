@@ -4,6 +4,13 @@ All notable changes to BinMaster are documented here. Format loosely follows [Ke
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-07-17
+
+### Added
+- Blank placeholder brand icons (`custom_components/binmaster/brand/icon.png`, `icon@2x.png`, `dark_icon.png`, `dark_icon@2x.png`) satisfying HACS's brands validation check and the [brands proxy API](https://developers.home-assistant.io/blog/2026/02/24/brands-proxy-api/) file structure — transparent placeholders, real artwork still pending.
+
+## [0.1.0] - 2026-07-17
+
 ### Added
 - Initial integration: single "BinMaster" config entry, bin types managed as config-entry subentries (add/edit/delete via the UI), each getting its own `calendar.binmaster_*` and `sensor.binmaster_*` entity pair.
 - Recurrence engine (`dateutil.rrule`) supporting weekly, biweekly, monthly (Nth-weekday), and custom (interval or raw RRULE) patterns.
@@ -19,3 +26,5 @@ All notable changes to BinMaster are documented here. Format loosely follows [Ke
 - `CONFIG_SCHEMA = None` crashed every install (`'NoneType' object is not callable`) — replaced with `cv.config_entry_only_config_schema`.
 - A single bin type with an unparseable recurrence config could take the whole integration down (`ConfigEntryNotReady`) — isolated per-bin-type now, logs and skips instead.
 - Config-flow date field left at its untouched default could fail HA's own client-side date validation — bound a real default instead of leaving it unset.
+- `selector.nth.options`' `"-1"` key failed hassfest validation (keys can't start with a hyphen) — renamed to `"last"`.
+- `manifest.json` was missing `dependencies`/`after_dependencies` for `http`/`lovelace`, and its keys weren't alphabetically sorted — both required by hassfest.
